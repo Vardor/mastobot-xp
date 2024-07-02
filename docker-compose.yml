@@ -1,0 +1,13 @@
+services:
+  mastobot-xp:
+    build: .
+    image: mastobot-xp
+    container_name: mastobot-xp
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    networks:
+      - mastobot-xp
+
+networks:
+  mastobot-xp:
