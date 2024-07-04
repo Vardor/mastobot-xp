@@ -13,6 +13,7 @@ import yaml
 import os
 from time import sleep
 from bs4 import BeautifulSoup
+import logging
 
 data_dir = '/data'
 config_file = 'config.yml'
@@ -41,10 +42,10 @@ def get_user_statuses(instance, user_id, user_token, limit):
 def clean_status_text(text):
     text = re.sub(r'<br(?: \/)?>','\n', text) #replace <br> with \n
     soup = BeautifulSoup(text, 'html.parser')
-    text = ''
+    text = ""
     for p in soup.find_all('p'):
-        text = text + p.text + '\n\n'
-    text = re.sub(r'(@\w+)@(?:x\.com|twitter\.com|birdsite\.com)', r'\1', text).strip()
+        text = text + p.text + "\n\n"
+    text = re.sub(r"(@\w+)@(?:x\.com|twitter\.com|birdsite\.com)", r"\1", text).strip()
     return text
 
 ######################################################################
@@ -53,7 +54,7 @@ def clean_status_text(text):
 def short_text(text, limit):
     if len(text) > limit:
         #cut in <limit> chars, but removes last incomplete word
-        text = text[:limit].rsplit(None, 1)[0] + '...'
+        text = text[:limit].rsplit(None, 1)[0] + "..."
     return text
 
 ######################################################################
@@ -71,7 +72,7 @@ def post_to_x(status, status_url, q_url, key, val):
     return r_data
 
 def main():
-    print("starting main...")
+    logging.info("Starting mastobot-xp...")
      
     # Load config file and assign values to vars
     with open(data_dir + '/' + config_file, 'r') as f:
@@ -95,7 +96,7 @@ def main():
         open(last_status_file, 'a').close() #create file
          
     while 1:
-        #print("starting while...")
+        logging.info("starting new status search...")
         statuses_list = get_user_statuses(instance, user_id, user_token, max_statuses)
         if type(statuses_list) != list:
             interval_ori = interval
@@ -129,7 +130,7 @@ def main():
             for xp in xp_statuses:
                 x_text = short_text(xp['status'],250) # limit to 250 chars for X
                 tuit = post_to_x(x_text, xp['url'], wh_url, wh_key, wh_val)
-                print (tuit)
+                logging.info ("posting to twitter")
                 last_status_xp = xp['id']
             
             if last_status_xp != last_status_id:
@@ -137,7 +138,7 @@ def main():
                 f.write(last_status_xp)
                 f.close()
 
-        #print("executed")
+        logging.info("finished this cycle")
         sleep(interval*60)
         #sleep(1*60)
 
