@@ -1,58 +1,73 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul  2 21:00:44 2024
+Created on Sat Jun 15 18:42:10 2024
 
 @author: carlos
 """
 
-import re
-from bs4 import BeautifulSoup
+import yaml
+import logging
+from xposter.mastodon import Mastobot, Toot
+from xposter.twitter import TwitterApp
+from xposter.db import MastoDB
 
-class Toot:
-    def __init__(self,status_id,url,content):
-        self.id = status_id
-        self.url = url
-        self.text = content
-        self.tw_reply_id = ""
-        self.clear_text = self.clean_status_text()
-        self.max_tw_len = 250 + self.get_tw_len_dif()
-        
-    def clean_status_text(self):
-        text = re.sub(r'<br(?: \/)?>','\n', self.text) #replace <br> with \n
-        soup = BeautifulSoup(text, 'html.parser')
-        text = ""
-        for p in soup.find_all('p'):
-            text = text + p.text + "\n\n"
-        text = re.sub(r"(@\w+)@(?:x\.com|twitter\.com|birdsite\.com)", r"\1", text).strip()
-        return text
+DATA_DIR = 'data'
+DB_FILE = '.mastobot.db'
+dbFile = DATA_DIR + "/" + DB_FILE
+
+def load_config(config_file):
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+    return config
+
+def xpost(conf):
+    logging.info("Starting mastobot-xp...")
+     
+    # Load config file
+    # conf = load_config(DATA_DIR + "/" + CONFIG_FILE)
     
-    def short_text(self, limit):
-        if len(self.clear_text) > limit:
-            #cut in <limit> chars, but removes last incomplete word
-            text = self.clear_text[:limit].rsplit(None, 1)[0] + "..."
-        return text
+   
+    # set mastodon object
+    m = Mastobot(conf['mastodon']['instance'])
+    m.set_token(conf['mastodon']['token'])
+            
+    # set mastodb object
+    db = MastoDB(dbFile)
+
+    last_status_id = db.get_last_id()
     
-    def is_x_reply(self):
-        regex = r're:\shttps?:\/\/(?:farside\.link\/(?:https?:\/\/)?)?(?:x.com|twitter.com|[bn]itter.altgr.xyz|nitter.poast.org|xcancel.com)\/\w+\/\w+\/(\d+).*'
-        m = re.search(regex, self.clear_text, re.IGNORECASE)
-        if m:
-            self.tw_reply_id = m.group(1)
-            new_text = re.sub(rf'{m.group(0)}', '', self.clear_text)
-            self.clear_text = new_text
-            self.max_tw_len += 27 
-            return True
-        else:
-            return False
+    xp_statuses = []
+    
+    statuses_list = m.get_statuses()
+    
+    #iterate to get all status to crosspost and store in a list
+    for status in statuses_list:
+        current_id = str(status['id'])
+        if current_id == last_status_id: break
+        toot = Toot(current_id,status['url'],status['content'])
+        if not(any(b in toot.clear_text for b in conf['app']['noxp']) or status['visibility'] != 'public'):
+            xp_statuses.insert(0, toot)
+      
+    if xp_statuses:
+        t_account = db.get_twitter_account()
+        t = TwitterApp(client_id=conf['twitter']['client_id'])
+        token = t.refresh_token(t_account[3])
+        db.update_twitter_account(token, t_account[0])
         
-    def get_tw_len_dif(self):
-        soup = BeautifulSoup(self.text, 'html.parser')
-        q_links = 0
-        l_links = 0
-        for a in soup.find_all('a'):
-            if not re.match('^(?:@|#)\w+', a.text):
-                l_links = l_links + len(a.text)
-                q_links +=1
-        tw_len_dif = l_links - q_links*23 
-        return tw_len_dif
-        #max_len = 250 + tw_len_dif
+        for xp in xp_statuses:
+            text = xp.get_short_text() + "\n\n" + xp.url
+            reply_id = xp.tw_reply_id
+            resp = t.post_tweet(text, reply_id) #post tweet
+            if resp.status_code == 201:
+                # create db entry 
+                m_id = xp.id
+                t_id = resp.json()['data']['id']
+                m_userid = m.userid
+                db.insert_xpost(m_id, t_id, m_userid)
+            logging.info (f"posting to twitter: {t_id}")
+        
+
+    logging.info("finished this cycle")
+
+
