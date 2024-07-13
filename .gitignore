@@ -2,7 +2,5 @@ __pycache__/
 .spyproject/
 data/
 config.yml
-docker-compose.yml
 
 *.db
-
