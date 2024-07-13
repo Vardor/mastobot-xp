@@ -42,12 +42,14 @@ def xpost(conf):
     statuses_list = m.get_statuses()
     
     #iterate to get all status to crosspost and store in a list
+    statuses_count = 0
     for status in statuses_list:
         current_id = str(status['id'])
-        if current_id == last_status_id: break
+        if current_id == last_status_id or statuses_count > conf['app']['max_statuses']: break
         toot = Toot(current_id,status['url'],status['content'])
         if not(any(b in toot.clear_text for b in conf['app']['noxp']) or status['visibility'] != 'public'):
             xp_statuses.insert(0, toot)
+            statuses_count += 1
       
     if xp_statuses:
         t_account = db.get_twitter_account()
