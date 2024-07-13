@@ -18,4 +18,4 @@ COPY mastobot_xp.py .
 #COPY test.py .
 
 # Specify the command to run on container start
-CMD [ "python", "./mastobot_xp.py" ]
+CMD [ "python", "./app.py" ]
