@@ -29,7 +29,7 @@ def xpost(conf, db_file):
     
     exclude_replies = 'true'
     if conf['app']['xp_replies']: 
-        xp_replies_ids = [m.userid]
+        xp_replies_ids = []
         for user in conf['app']['xp_replies']:
             user_id = m.get_user_id(user)
             if user_id: xp_replies_ids.append(user_id)
@@ -54,6 +54,7 @@ def xpost(conf, db_file):
         toot = Toot(status)
         if not(any(b in toot.clear_text for b in conf['app']['noxp']) or status['visibility'] != 'public'):
             if ( (exclude_replies == 'true' and exclude_boosts == 'true')
+                or (status['in_reply_to_account_id'] == m.userid)
                 or (not status['in_reply_to_account_id']) 
                 or (status['in_reply_to_account_id'] in xp_replies_ids) ):
                 xp_statuses.insert(0, toot)
