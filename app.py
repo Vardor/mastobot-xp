@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 10 02:37:09 2024
-
-@author: carlos
-"""
-
-
 import os
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -23,10 +14,10 @@ app.secret_key = os.urandom(50)
 scopes = ["tweet.read", "users.read", "tweet.write", "offline.access"]
 
 CONFIG_FILE = 'config.yml'
-DATA_DIR = 'data'
+DATA_DIR = 'data/'
 DB_FILE = '.mastobot.db'
 
-dbFile = DATA_DIR + "/" + DB_FILE
+db_file = DATA_DIR + DB_FILE
 
 ##################### set logging config #############################
 logging.basicConfig(
@@ -42,11 +33,11 @@ conf = load_config(CONFIG_FILE)
 logging.debug("config loaded {}".format(conf))
 
 # initialize db
-db = MastoDB(dbFile)
+db = MastoDB(db_file)
 db.create_db()
 
 # check and store mastodon account information
-m = Mastobot("lile.cl")
+m = Mastobot(conf['mastodon']['instance'])
 m.set_token(token=conf['mastodon']['token'])
 db.insert_mastodon_db(m.userid,m.username,m.instance)
 
@@ -58,9 +49,9 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 
 if t_account:
-    xpost_sch = scheduler.add_job(xpost,args=[conf],trigger='interval',minutes=conf['app']['interval'])
+    xpost_job = scheduler.add_job(xpost,args=[conf,db_file],trigger='interval',minutes=conf['app']['interval'])
     logging.info("added job to scheduler")
-    if not conf['app'].get('autostart'):  xpost_sch.pause()
+    if not conf['app'].get('autostart'):  xpost_job.pause()
 
 ################# TEST SCHEDULER ##################
 
@@ -78,6 +69,7 @@ if t_account:
 
 @app.route("/")
 def demo():
+    global twitter
     jobs = scheduler.get_jobs()
     if jobs:
         if jobs[0].next_run_time:
@@ -90,7 +82,6 @@ def demo():
             #token = t.refresh_token(t_account[3])
             return "stopped 2"
         else:
-            global twitter
             twitter = TwitterApp(conf['twitter']['client_id'], client_secret=conf['twitter']['client_secret'],
                                  redirect_uri=conf['twitter']['redirect_uri'], scope=scopes)
             authorization_url, state = twitter.authorization_url() 
@@ -105,8 +96,8 @@ def callback():
     user = twitter.whoami()
     db.insert_twitter_account(user['data']['id'], user['data']['name'], m.userid)
     db.update_twitter_account(token, user['data']['id'])
-    global xpost_sch
-    xpost_sch = scheduler.add_job(xpost,args=[conf],trigger='interval',minutes=conf['app']['interval'])
+    global xpost_job
+    xpost_job = scheduler.add_job(xpost,args=[conf,db_file],trigger='interval',minutes=conf['app']['interval'])
     return token
 
 if __name__ == "__main__":

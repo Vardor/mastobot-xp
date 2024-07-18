@@ -67,7 +67,7 @@ class MastoDB:
         connection.close()
         if r: return r[0]
         else: return None
-        
+
     def get_xpost(self, m_id):
         query = f"SELECT * FROM xposts WHERE mastodon_id=\'{m_id}\'"
         connection = sqlite3.connect(self.db)

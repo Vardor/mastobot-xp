@@ -11,11 +11,11 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 #
-RUN mkdir /data
+RUN mkdir data
 
 # Copy the content of the local src directory to the working directory
 COPY app.py .
-COPY xposter .
+COPY xposter/ xposter/
 
 # Specify the command to run on container start
 CMD [ "python", "./app.py" ]

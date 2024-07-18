@@ -47,7 +47,7 @@ class Mastobot:
         r = requests.get(q_url, params=q_data, headers=headers) # request user data   
         r_data = json.loads(r.text)
         if r_data.get('id'): return r_data['id']
-        elif r_data.get('error'): return ""
+        elif r_data.get('error'): return None
         
     def get_statuses(self, limit=20, exclude_replies='true', exclude_boosts='true'):
         base_endpoint = '/api/v1/accounts'
@@ -61,15 +61,28 @@ class Mastobot:
         q_url = "https://" + self.instance + endpoint 
         r = requests.get(q_url, params=q_data, headers=headers) # request user posts
         return json.loads(r.text) #list of toots
+    
+    def get_status_by_id(self, status_id):
+        endpoint = '/api/v1/statuses/' + status_id
+        headers = {'Authorization': 'Bearer ' + self.token}
+        q_url = "https://" + self.instance + endpoint 
+        r = requests.get(q_url, headers=headers)
+        return json.loads(r.text)
 
 class Toot:
-    def __init__(self,status_id,url,content):
-        self.id = status_id
-        self.url = url
-        self.text = content
+    def __init__(self,status):
+        self.account_id = status['account']['id']
+        self.id = status['id']
+        self.url = status['url']
+        self.text = status['content']
+        self.in_reply_to_account_id = status['in_reply_to_account_id']
+        self.in_reply_to_id = status['in_reply_to_id']
         self.clear_text = self.__clean_status_text()
         self.tw_max_len = 250 + self.__get_tw_len_dif()
-        self.tw_reply_id = self.__get_reply_id()
+        self.tw_reply_id = None
+        self.tw_boost_id = None
+        self.tw_id = None
+        self.__get_tw_ids()
         
     def __clean_status_text(self):
         text = re.sub(r'<br(?: \/)?>','\n', self.text) #replace <br> with \n
@@ -85,24 +98,30 @@ class Toot:
         q_links = 0
         l_links = 0
         for a in soup.find_all('a'):
-            if not re.match('^(?:@|#)\w+', a.text):
+            if not re.match(r"(?:@|#)\w+", a.text):
                 l_links = l_links + len(a.text)
                 q_links +=1
         tw_len_dif = l_links - q_links*23 
         return tw_len_dif
         #max_len = 250 + tw_len_dif
         
-    def __get_reply_id(self):
-        regex = r're:\shttps?:\/\/(?:farside\.link\/(?:https?:\/\/)?)?(?:x.com|twitter.com|[bn]itter.altgr.xyz|nitter.poast.org|xcancel.com)\/\w+\/\w+\/(\d+).*'
+    def __get_tw_ids(self):
+        regex = r'(?:(re|qt):\s)?https?:\/\/(?:farside\.link\/(?:https?:\/\/)?)?(?:x.com|twitter.com|[bn]itter.altgr.xyz|nitter.poast.org|xcancel.com)\/\w+\/\w+\/(\d+).*'
         m = re.search(regex, self.clear_text, re.IGNORECASE)
         if m:
-            tw_reply_id = m.group(1)
-            new_text = re.sub(rf'{m.group(0)}', '', self.clear_text)
-            self.clear_text = new_text
-            self.tw_max_len -= 27 
-            return tw_reply_id 
-        else:
-            return None
+            if m.group(1):
+                if m.group(1).lower() == 're':
+                    self.tw_reply_id = m.group(2)
+                elif m.group(1).lower() == 'qt':
+                    self.tw_boost_id = m.group(2)
+                new_text = re.sub(rf'{m.group(0)}', '', self.clear_text)
+                self.clear_text = new_text
+                self.tw_max_len -= 27 
+            else:
+                self.tw_id =  m.group(2)
+    
+    def is_self_reply(self):
+        return self.in_reply_to_account_id == self.account_id
         
     def get_short_text(self):
         limit = self.tw_max_len
