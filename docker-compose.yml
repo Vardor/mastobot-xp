@@ -5,7 +5,10 @@ services:
     container_name: mastobot-xp
     restart: unless-stopped
     volumes:
-      - ./data:/data
+      - ./config.yml:/app/config.yml
+      - ./data:/app/data
+    ports:
+      - '5000:5000/tcp'
     networks:
       - mastobot-xp
 

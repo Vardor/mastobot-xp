@@ -1,0 +1,6 @@
+__pycache__/
+.spyproject/
+data/
+config.yml
+
+*.db
