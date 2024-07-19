@@ -127,7 +127,7 @@ class Toot:
         limit = self.tw_max_len
         if len(self.clear_text) > limit:
             #cut in <limit> chars, but removes last incomplete word
-            text = self.clear_text[:limit].rsplit(None, 1)[0] + "..."
+            text = self.clear_text[:limit].rsplit(None, 1)[0] + " ⬇️"
             return text
         else:
             return self.clear_text

@@ -35,7 +35,8 @@ def xpost(conf, db_file):
             if user_id: xp_replies_ids.append(user_id)
         if xp_replies_ids: exclude_replies = 'false'
     
-    exclude_boosts = 'true'  
+    exclude_boosts = 'true'
+    # WIP: enable xprost retoots
     # if conf['app']['xp_boosts']:
     #     xp_boosts_ids = []
     #     for user in conf['app']['xp_boosts']:
@@ -53,6 +54,14 @@ def xpost(conf, db_file):
         if db.get_xpost(current_id) or statuses_count >= conf['app']['max_statuses']: break
         toot = Toot(status)
         if not(any(b in toot.clear_text for b in conf['app']['noxp']) or status['visibility'] != 'public'):
+            
+            # WIP: enable xprost retoots
+            # if status['reblog']: 
+            #     if status['reblog']['account']['id'] in xp_boosts_ids: 
+            #         toot = m.get_status_by_id(m.get_status_by_id)
+            #         xp_statuses.insert(0, toot)
+            #         statuses_count += 1
+            
             if ( (exclude_replies == 'true' and exclude_boosts == 'true')
                 or (status['in_reply_to_account_id'] == m.userid)
                 or (not status['in_reply_to_account_id']) 

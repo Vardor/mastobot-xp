@@ -51,7 +51,7 @@ scheduler.start()
 if t_account:
     xpost_job = scheduler.add_job(xpost,args=[conf,db_file],trigger='interval',minutes=conf['app']['interval'])
     logging.info("added job to scheduler")
-    if not conf['app'].get('autostart'):  xpost_job.pause()
+    #if not conf['app'].get('autostart'):  xpost_job.pause()
 
 ################# TEST SCHEDULER ##################
 
