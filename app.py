@@ -111,18 +111,19 @@ def index():
 
 @app.route("/oauth/callback", methods=["GET"])
 def callback():
-    code = request.args.get("code")
-    token = twitter.fetch_token(code)
-    user = twitter.whoami()
-    db.insert_twitter_account(user['data']['id'], user['data']['username'], m.userid)
-    db.update_twitter_account(token, user['data']['id'])
-    global valid_twitter
-    global valid_twitter_reason
-    valid_twitter = "@" + user['data']['username']
-    valid_twitter_reason = ""
-    global xpost_job
-    xpost_job = scheduler.add_job(xpost,args=[conf,db_file],trigger='interval',minutes=conf['app']['interval'])
-    if not conf['app'].get('autostart'):  scheduler.pause()
+    if not request.args.get("error"):
+        code = request.args.get("code")
+        token = twitter.fetch_token(code)
+        user = twitter.whoami()
+        db.insert_twitter_account(user['data']['id'], user['data']['username'], m.userid)
+        db.update_twitter_account(token, user['data']['id'])
+        global valid_twitter
+        global valid_twitter_reason
+        valid_twitter = "@" + user['data']['username']
+        valid_twitter_reason = ""
+        global xpost_job
+        xpost_job = scheduler.add_job(xpost,args=[conf,db_file],trigger='interval',minutes=conf['app']['interval'])
+        if not conf['app'].get('autostart'):  scheduler.pause()
     return redirect("/")
 
 if __name__ == "__main__":
