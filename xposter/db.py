@@ -96,6 +96,7 @@ class MastoDB:
         return r
     
     def update_twitter_account(self, token, userid):
+    # TODO: update username on update account (can be modified by user in twitter)
         query_pfx = "UPDATE twitter SET "
         query_bdy = f"token = \'{token['access_token']}\', refresh_token = \'{token['refresh_token']}\' "
         query_sfx = f"WHERE userid = \'{userid}\'"

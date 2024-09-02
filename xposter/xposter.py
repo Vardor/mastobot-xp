@@ -90,8 +90,11 @@ def xpost(conf, db_file):
                 if not reply_id: continue
             else:
                 reply_id = xp.tw_reply_id
+
+            # set quote_id (default=None)
+            quote_id = xp.tw_quote_id
                 
-            resp = t.post_tweet(text, reply_id=reply_id) #post tweet
+            resp = t.post_tweet(text, reply_id=reply_id, quote_id=quote_id ) #post tweet
             if resp.status_code == 201:
                 # create db entry 
                 m_id = xp.id

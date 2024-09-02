@@ -54,9 +54,10 @@ class TwitterApp(OAuth2Session):
             token = None
         return token
     
-    def post_tweet(self, text, reply_id=None, token=None):
+    def post_tweet(self, text, reply_id=None, quote_id=None, token=None):
         data = {"text": text}
         if reply_id: data["reply"] = {"in_reply_to_tweet_id": reply_id}
+        if quote_id: data['quote_tweet_id'] = quote_id
         if not token: token = self.token
         headers={ "Authorization": "Bearer {}".format(token["access_token"]),
                 "Content-Type": "application/json" }

@@ -80,7 +80,7 @@ class Toot:
         self.clear_text = self.__clean_status_text()
         self.tw_max_len = 250 + self.__get_tw_len_dif()
         self.tw_reply_id = None
-        self.tw_boost_id = None
+        self.tw_quote_id = None
         self.tw_id = None
         self.__get_tw_ids()
         
@@ -106,14 +106,14 @@ class Toot:
         #max_len = 250 + tw_len_dif
         
     def __get_tw_ids(self):
-        regex = r'(?:(re|qt):\s)?https?:\/\/(?:farside\.link\/(?:https?:\/\/)?)?(?:x.com|twitter.com|[bn]itter.altgr.xyz|nitter.poast.org|xcancel.com)\/\w+\/\w+\/(\d+).*'
+        regex = r'(?:(re|rt):\s)?https?:\/\/(?:farside\.link\/(?:https?:\/\/)?)?(?:x.com|twitter.com|[bn]itter.altgr.xyz|nitter.poast.org|xcancel.com)\/\w+\/\w+\/(\d+).*'
         m = re.search(regex, self.clear_text, re.IGNORECASE)
         if m:
             if m.group(1):
                 if m.group(1).lower() == 're':
                     self.tw_reply_id = m.group(2)
-                elif m.group(1).lower() == 'qt':
-                    self.tw_boost_id = m.group(2)
+                elif m.group(1).lower() == 'rt':
+                    self.tw_quote_id = m.group(2)
                 new_text = re.sub(rf'{m.group(0)}', '', self.clear_text)
                 self.clear_text = new_text
                 self.tw_max_len -= 27 
