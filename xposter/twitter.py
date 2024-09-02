@@ -45,10 +45,14 @@ class TwitterApp(OAuth2Session):
     
     def refresh_token(self,refresh_token=None, client_id=None):
         if not client_id: client_id=self.client_id
-        return OAuth2Session.refresh_token(self,
-                                           token_url=self.__token_url,
-                                           client_id=client_id,
-                                           refresh_token=refresh_token)
+        try:
+            token = OAuth2Session.refresh_token(self,
+                                               token_url=self.__token_url,
+                                               client_id=client_id,
+                                               refresh_token=refresh_token)
+        except:
+            token = None
+        return token
     
     def post_tweet(self, text, reply_id=None, token=None):
         data = {"text": text}

@@ -35,9 +35,9 @@ class Mastobot:
         if r.get('name'): 
             self.token = token
             self.__set_app_user()
-            return f"Token succesfully validated for user @{self.username}@{self.instance}"
+            return True, f"@{self.username}@{self.instance}"
         elif r.get('error'): 
-            return "Couldn't validate token. Check instance/token"
+            return False, r['error']
         
     def get_user_id(self,user_handle):
         endpoint = '/api/v1/accounts/lookup'
