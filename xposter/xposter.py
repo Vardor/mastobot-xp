@@ -27,28 +27,47 @@ def xpost(conf, db_file):
     # set mastodb object
     db = MastoDB(db_file)
     
-    xp_statuses = []
-    
+    exclude_replies = 'true'
     if conf['app']['xp_replies']: 
-        xp_replies_ids = [m.userid]
+        xp_replies_ids = []
         for user in conf['app']['xp_replies']:
             user_id = m.get_user_id(user)
             if user_id: xp_replies_ids.append(user_id)
-    if xp_replies_ids: exclude_replies = 'false'
-    else: exclude_replies = 'true'
+        if xp_replies_ids: exclude_replies = 'false'
     
-    statuses_list = m.get_statuses(exclude_replies=exclude_replies)
+    exclude_boosts = 'true'
+    # WIP: enable xprost retoots
+    # if conf['app']['xp_boosts']:
+    #     xp_boosts_ids = []
+    #     for user in conf['app']['xp_boosts']:
+    #         user_id = m.get_user_id(user)
+    #         if user_id: xp_boosts_ids.append(user_id)
+    #     if xp_boosts_ids: exclude_boosts = 'false'
+
+    statuses_list = m.get_statuses(exclude_replies=exclude_replies, exclude_boosts=exclude_boosts)
+    xp_statuses = []
     
     #iterate to get all status to crosspost and store in a list
     statuses_count = 0      
     for status in statuses_list:
         current_id = str(status['id'])        
-        if db.get_xpost(current_id) or statuses_count > conf['app']['max_statuses']: break
+        if db.get_xpost(current_id) or statuses_count >= conf['app']['max_statuses']: break
         toot = Toot(status)
-        if not(any(b in toot.clear_text for b in conf['app']['noxp']) 
-               or status['visibility'] != 'public') or (exclude_replies == 'false' and status['in_reply_to_account_id'] in xp_replies_ids):
-            xp_statuses.insert(0, toot)
-            statuses_count += 1
+        if not(any(b in toot.clear_text for b in conf['app']['noxp']) or status['visibility'] != 'public'):
+            
+            # WIP: enable xprost retoots
+            # if status['reblog']: 
+            #     if status['reblog']['account']['id'] in xp_boosts_ids: 
+            #         toot = m.get_status_by_id(m.get_status_by_id)
+            #         xp_statuses.insert(0, toot)
+            #         statuses_count += 1
+            
+            if ( (exclude_replies == 'true' and exclude_boosts == 'true')
+                or (status['in_reply_to_account_id'] == m.userid)
+                or (not status['in_reply_to_account_id']) 
+                or (status['in_reply_to_account_id'] in xp_replies_ids) ):
+                xp_statuses.insert(0, toot)
+                statuses_count += 1
       
     if xp_statuses:
         t_account = db.get_twitter_account()
@@ -79,8 +98,8 @@ def xpost(conf, db_file):
                 t_id = resp.json()['data']['id']
                 m_userid = m.userid
                 db.insert_xpost(m_id, t_id, m_userid)
-            logging.info (f"posting to twitter: {t_id}")
-        
+                logging.info (f"posted to twitter: {t_id}")
+            else: logging.info (f"could not post to twitter: {xp.id} reason:{resp.text}")
 
     logging.info("finished this cycle")
 

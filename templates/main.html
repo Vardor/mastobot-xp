@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %} 
+      <ul>
+        <li>Status: {{ mastobot_state }} </li>
+        <li>Mastodon Account: {{ valid_mastodon }}{{ valid_mastodon_reason }}</li>
+        <li>Twitter Account: {{ valid_twitter }}{{ valid_twitter_reason }}</li>
+      </ul>
+      {% if valid_mastodon %}
+        <form action="/" method="post">
+        {% if mastobot_state == "Running" %}
+          <button type="submit" name="mastobutton" value="pause">Pause</button>   
+        {% elif mastobot_state == "Paused"  %}
+          <button type="submit" name="mastobutton" value="resume">Resume</button>
+        {% elif mastobot_state == "Fail"  %}
+          <button type="submit" name="mastobutton" value="authorize">Authorize Twitter Account</button>   
+        {% endif %}
+        </form>
+      {% else %}
+        <p> Check mastodon account parameters in config file</p> 
+      {% endif %}   
+{% endblock %}
+
+
