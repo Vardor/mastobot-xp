@@ -1,10 +1,25 @@
 {% extends 'base.html' %}
 
+{% block title %}Mastobot{% endblock %}
+
+{% block style %}
+        span.status {
+            font-weight:bold;
+        {% if mastobot_state == "Fail" %}
+            color: red;
+        {% elif mastobot_state == "Paused" %}
+            color: orange;
+        {% else %}
+            color: green;
+        {% endif %}   
+        }
+{% endblock %}
+
 {% block content %} 
       <ul>
-        <li>Status: {{ mastobot_state }} </li>
-        <li>Mastodon Account: {{ valid_mastodon }}{{ valid_mastodon_reason }}</li>
-        <li>Twitter Account: {{ valid_twitter }}{{ valid_twitter_reason }}</li>
+        <li>Status: <span class="status">{{ mastobot_state }}</span></li>
+        <li>Mastodon Account: {{ valid_mastodon }}<span class="fail">{{ valid_mastodon_reason }}</span></li>
+        <li>Twitter Account: {{ valid_twitter }}<span class="fail">{{ valid_twitter_reason }}</span> </li>
       </ul>
       {% if valid_mastodon %}
         <form action="/" method="post">
@@ -17,7 +32,7 @@
         {% endif %}
         </form>
       {% else %}
-        <p> Check mastodon account parameters in config file</p> 
+        <p><span class="fail"> Check mastodon account parameters in config file</span></p> 
       {% endif %}   
 {% endblock %}
 
