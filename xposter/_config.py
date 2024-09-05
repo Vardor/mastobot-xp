@@ -11,21 +11,21 @@ import yaml
 config_schema = Schema({
     "mastodon": {
         "instance": Or(
-            Regex('^(?:[\w-]+\.)+[a-z]+$'), 
+            Regex(r'^(?:[\w-]+\.)+[a-z]+$'), 
             error ="Error: 'instance' invalid format"),
         "token": str
         },
     "twitter":{
         "client_id": str,
         "client_secret": str,
-        "redirect_uri": Regex('^https?:\/\/(?:(?:(?:[\w-]+\.)+[a-z]+)|(?:(?:(?:25[0-5]|(?:2[0-4]|1\d|[1-9]|)\d)\.?){4}))(?::\d+)?(?:\/\w+)*$')
+        "redirect_uri": Regex(r'^https?:\/\/(?:(?:(?:[\w-]+\.)+[a-z]+)|(?:(?:(?:25[0-5]|(?:2[0-4]|1\d|[1-9]|)\d)\.?){4}))(?::\d+)?(?:\/\w+)*$')
         },
     "app":{
         "max_statuses": int,
         "interval": int,
-        Optional("noxp"): [ Regex('^#\w+$') ],
-        Optional("xp_boosts"): [ Regex('^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
-        Optional("xp_replies"): [ Regex('^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
+        Optional("noxp"): [ Regex(r'^#\w+$') ],
+        Optional("xp_boosts"): [ Regex(r'^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
+        Optional("xp_replies"): [ Regex(r'^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
         Optional("autostart"): bool
             }
     
