@@ -24,8 +24,8 @@ config_schema = Schema({
         "max_statuses": int,
         "interval": int,
         Optional("noxp"): [ Regex(r'^#\w+$') ],
-        Optional("xp_boosts"): [ Regex(r'^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
-        Optional("xp_replies"): [ Regex(r'^@\w+@(?:[\w-]+\.)+[a-z]+$') ],
+        Optional("xp_boosts"): [ Regex(r'^@\w+(?:@(?:[\w-]+\.)+[a-z]+)?$') ],
+        Optional("xp_replies"): [ Regex(r'^@\w+(?:@(?:[\w-]+\.)+[a-z]+)?$') ],
         Optional("autostart"): bool
             }
     
