@@ -2,10 +2,11 @@ import os
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, redirect, session, request, render_template
-from xposter.xposter import load_config, xpost
+from xposter.xposter import xpost
 from xposter.xposter import Mastobot
 from xposter.twitter import TwitterApp
 from xposter.db import MastoDB
+from xposter._config import validate_config
 
 app = Flask(__name__)
 app.secret_key = os.urandom(50)
@@ -28,9 +29,12 @@ logging.basicConfig(
 ######################################################################
 
 ################### INITIAL SETUP #################
-# Load config
-conf = load_config(CONFIG_FILE)
-logging.info("config loaded succesfully")
+
+# validate config
+conf_validator = validate_config(CONFIG_FILE)
+if conf_validator[0]:
+    conf = conf_validator[1]
+    logging.info("config loaded succesfully")
 
 # initialize db
 db = MastoDB(db_file)

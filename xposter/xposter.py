@@ -12,11 +12,6 @@ from xposter.mastodon import Mastobot, Toot
 from xposter.twitter import TwitterApp
 from xposter.db import MastoDB
 
-def load_config(config_file):
-    with open(config_file, 'r') as f:
-        config = yaml.safe_load(f)
-    return config
-
 def xpost(conf, db_file):
     logging.info("Starting mastobot-xp...")
 

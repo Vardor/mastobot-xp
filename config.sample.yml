@@ -11,7 +11,9 @@ app:
     max_statuses: 10
     interval: 10 #minutes
     noxp:
+    # must include quotes and start with #
     - '#noxp'
     - '#nx'
     - '#nxp'
     - '#nox'
+    autostart: True

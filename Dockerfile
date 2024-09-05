@@ -1,6 +1,9 @@
 # Set base image (host OS)
 FROM python:3.12-alpine
 
+# Set timezone
+ENV TZ=America/Santiago
+
 # Set the working directory in the container
 WORKDIR /app
 
