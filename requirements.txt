@@ -4,3 +4,4 @@ requests-oauthlib
 beautifulsoup4
 Flask
 apscheduler
+schema
