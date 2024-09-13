@@ -36,7 +36,7 @@ Due to free Twitter API restrictions there are some restrictions
 5. Start container
   `docker compose up -d`
 
-## Config File ParametersXmY9VJ6OxUa1IuGkQ9x5GLswSI2OFpz8jpKiMXQabzA
+## Config File Parameters
 ### Mastodon section
 - **instance**: (required) mastodon instance of your account 
 - **token**: (required) mastodon app token. It is a string 
