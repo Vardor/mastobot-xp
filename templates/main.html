@@ -5,7 +5,7 @@
 {% block style %}
         span.status {
             font-weight:bold;
-        {% if mastobot_state == "Fail" %}
+        {% if mastobot_state == "Fail" or mastobot_state == "Config Fail" %}
             color: red;
         {% elif mastobot_state == "Paused" %}
             color: orange;
@@ -18,9 +18,15 @@
 {% block content %} 
       <ul>
         <li>Status: <span class="status">{{ mastobot_state }}</span></li>
+    {% if mastobot_state == "Config Fail" %}
+      </ul>
+      <p>Config file error. Check details below<br />
+      {{ conf_error }}</p>
+    {% else %}
         <li>Mastodon Account: {{ valid_mastodon }}<span class="fail">{{ valid_mastodon_reason }}</span></li>
         <li>Twitter Account: {{ valid_twitter }}<span class="fail">{{ valid_twitter_reason }}</span> </li>
       </ul>
+    {% endif %}
       {% if valid_mastodon %}
         <form action="/" method="post">
         {% if mastobot_state == "Running" %}
@@ -31,7 +37,7 @@
           <button type="submit" name="mastobutton" value="authorize">Authorize Twitter Account</button>   
         {% endif %}
         </form>
-      {% else %}
+      {% elif mastobot_state != "Config Fail" %}
         <p><span class="fail"> Check mastodon account parameters in config file</span></p> 
       {% endif %}   
 {% endblock %}

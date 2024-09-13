@@ -39,4 +39,4 @@ def validate_config(config_file):
         config_schema.validate(config)
         return True, config
     except SchemaError as se:
-        raise se  
+        return False, se.code
