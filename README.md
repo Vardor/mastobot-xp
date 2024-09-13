@@ -15,7 +15,38 @@ Due to free Twitter API restrictions there are some restrictions
 ## Requirement
 * Twitter:
   * A valid Twitter account
-  * A free twitter API tokens
+  * A free twitter API tokens (client_id/client_secret)
 * Mastodon:
   * A valid Mastodon Account
-  * An app token 
+  * An app token
+
+## Install
+1.  clone repo
+  `git clone https://git.disroot.org/carloshr/mastobot.git`
+
+2. Copy config file
+  `cp config.sample.yml config.yml`
+
+3. Edit config file with your info 
+  `vi config.yml`
+
+4. Build docker image 
+  `docker compose build`
+
+5. Start container
+  `docker compose up -d`
+
+## Config File ParametersXmY9VJ6OxUa1IuGkQ9x5GLswSI2OFpz8jpKiMXQabzA
+### Mastodon section
+- **instance**: (required) mastodon instance of your account 
+- **token**: (required) mastodon app token. It is a string 
+### Twitter section
+- **client_id**: (required)
+- **client_secret**: (required)
+- **redirect_uri**: (required)
+### App section:
+- **max_statuses**: (required)
+- **interval**: (required)
+- **noxp**: (optional)
+- **xp_replies**: (optional)
+- **autostart**: (optional)
