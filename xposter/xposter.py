@@ -70,7 +70,8 @@ def xpost(conf, db_file):
         db.update_twitter_account(token, t_account[0])
         
         for xp in xp_statuses:
-            text = xp.get_short_text() + "\n\n" + xp.url
+            text = xp.get_short_text()           
+            if xp.include_link: text = text + "\n\n" + xp.url
             
             # get reply_id if it is a reply
             if xp.is_self_reply():

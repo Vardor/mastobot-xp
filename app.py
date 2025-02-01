@@ -20,13 +20,13 @@ DB_FILE = '.mastobot.db'
 
 db_file = DATA_DIR + DB_FILE
 
-##################### set logging config #############################
+##################### set logging config ##############################
 logging.basicConfig(
     level=logging.INFO, #INFO
     format='%(asctime)s %(levelname)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-######################################################################
+#######################################################################
 
 ################### INITIAL SETUP #################
 

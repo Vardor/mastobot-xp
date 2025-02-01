@@ -70,7 +70,7 @@ class Mastobot:
         return json.loads(r.text)
 
 class Toot:
-    def __init__(self,status):
+    def __init__(self,status,max_len=280):
         self.account_id = status['account']['id']
         self.id = status['id']
         self.url = status['url']
@@ -78,13 +78,17 @@ class Toot:
         self.in_reply_to_account_id = status['in_reply_to_account_id']
         self.in_reply_to_id = status['in_reply_to_id']
         self.clear_text = self.__clean_status_text()
-        self.tw_max_len = 250 + self.__get_tw_len_dif()
+        self.tw_max_len = max_len + self.__get_tw_len_dif()
         self.tw_reply_id = None
         self.tw_quote_id = None
         self.tw_id = None
         self.__get_tw_ids()
+        self.has_media = bool(status['media_attachments'])
+        self.exceed_len = bool(len(self.clear_text) > self.tw_max_len)
+        self.include_link = self.has_media or self.exceed_len
         
     def __clean_status_text(self):
+        # Remove html code from status
         text = re.sub(r'<br(?: \/)?>','\n', self.text) #replace <br> with \n
         soup = BeautifulSoup(text, 'html.parser')
         text = ""
@@ -125,9 +129,15 @@ class Toot:
         
     def get_short_text(self):
         limit = self.tw_max_len
+        add_text = ""
+        if self.include_link: limit = limit - 25
+        if self.exceed_len: 
+            limit = limit - 6
+            add_text = " [...]"
+            
         if len(self.clear_text) > limit:
             #cut in <limit> chars, but removes last incomplete word
-            text = self.clear_text[:limit].rsplit(None, 1)[0] + " ⬇️"
+            text = self.clear_text[:limit].rsplit(None, 1)[0] + add_text
             return text
         else:
             return self.clear_text
