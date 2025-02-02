@@ -1,54 +1,63 @@
 # Mastobot XP
 
-Script para crear un bot auto alojado que permite hacer crossposting desde Mastodon a Twitter.
+Script to create a self-hosted bot that allows crossposting from Mastodon to Twitter.
 
-## Características
-* Publica automáticamente en twitter tus posts (toots) de Mastodon. 
-* Permite responder o comentar un tweet desde Mastodon
-* Permite hacer crossposting de las respuestas a algunos bots de twitter.
-* Provee una (muy simple) interfaz web para visualizar el estado.
+## Features
 
-## Restricciones
-Debido a las restricciones en la API gratuita de Twitter, hay algunas limitacaciones:
-* Se puede publicar un máximo de 50 posts diarios y 1500 posts mensuales en Twitter (Más que suficiente para cualquier usuario casual)
-* En twitter solo se publica texto. Las imágenes, videos y encuestas no son re-publicadas.
+- Automatically posts your Mastodon posts (toots) to Twitter.
+- Allows replying or commenting on a tweet directly from Mastodon.
+- Enables crossposting of replies to some bots that replicate Twitter accounts.
+- Provides a (very simple) web interface to view the status.
 
-## Requisitos
-* Twitter:
-  * Una cuenta válida
-  * Tokens de la API gratuita (client_id/client_secret)
-* Mastodon:
-  * Una cuenta válida
-  * Un token de aplicación
+## Restrictions
 
-## Instalación 
-**Utilizando docker**
-1. Clonar el repositorio
-  `git clone https://git.disroot.org/carloshr/mastobot.git`
+Due to limitations in Twitter's free API, there are some restrictions:
 
-2. Copiar el archivo de configuración
-  `cp config.sample.yml config.yml`
+- A maximum of 17 posts per day and 500 posts per month can be published on Twitter (more than enough for any casual user).
+- Only text is published on Twitter. Images, videos, and polls are not reposted.
 
-3. Editar la configuración con tus parámetros
-  `vi config.yml`
+## Requirements
 
-4. Contruir la imagen
-  `docker compose build`
+### Twitter:
+- A valid account.
+- Free API tokens (`client_id`/`client_secret`).
 
-5. Iniciar el contenedor
-  `docker compose up -d`
+### Mastodon:
+- A valid account.
+- An application token.
 
-## Opciones del archivo de configuración
-### Sección "Mastodon"
-- **instance**: (Obligatorio) instancia de mastodon donde está tu cuenta 
-- **token**: (Obligatorio) Token de la app de mastodon
-### Sección "Twitter"
-- **client_id**: (Obligatorio)
-- **client_secret**: (Obligatorio)
-- **redirect_uri**: (Obligatorio) url local para redireccionar autorización de la cuenta de twitter. Debe estar autorizada en la API.
-### Sección "App"
-- **max_statuses**: (Obligatorio) Cantidad máxima de toots a publicar en twitter en cada interación.
-- **interval**: (required) Invervalo en minutos en que el script chequea si existen nuevas publicaciones.
-- **noxp**: (optional) Lista con etiquetas (hashtags) para indicar que un toot no se publique en twitter. Debe estar entre comillas simples y comenzar con #
-- **xp_replies**: (opcional)  
-- **autostart**: (opcional) Indica si se iniciar automáticamente el crossposting o debe ser iniciado manualmente en la interfaz web.
+## Installation
+
+### Using Docker
+
+1. Clone the repository:  
+   `git clone https://git.disroot.org/carloshr/mastobot.git`  
+2. Copy the configuration file:  
+   `cp config.sample.yml config.yml`  
+3. Edit the configuration with your parameters:  
+   `vi config.yml`  
+4. Build the Docker image:  
+   `docker compose build`  
+5. Start the container:  
+   `docker compose up -d`  
+
+## Configuration File Options
+
+### Mastodon Section
+
+- `instance`: (Required) Mastodon instance where your account is located.
+- `token`: (Required) Mastodon app token.
+
+### Twitter Section
+
+- `client_id`: (Required)
+- `client_secret`: (Required)
+- `redirect_uri`: (Required) Local URL for redirecting Twitter account authorization. Must be authorized in the API.
+
+### App Section
+
+- `max_statuses`: (Required) Maximum number of toots to publish on Twitter per interaction.
+- `interval`: (Required) Interval in minutes for the script to check for new posts.
+- `noxp`: (Optional) List of hashtags to indicate that a toot should not be published on Twitter. Must be in single quotes and start with `#`.
+- `xp_replies`: (Optional) Replicated Twitter bot accounts for which you want to enable crossposting. (The bot must publish a link to the original tweet).
+- `autostart`: (Optional) Indicates whether crossposting should start automatically or be manually started via the web interface.
