@@ -2,6 +2,8 @@
 
 Script to create a self-hosted bot that allows crossposting from Mastodon to Twitter.
 
+(Instructions in spanish [here](README.es.md))
+
 ## Features
 
 - Automatically posts your Mastodon posts (toots) to Twitter.
