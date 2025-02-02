@@ -6,7 +6,6 @@ Created on Sat Jun 15 18:42:10 2024
 @author: carlos
 """
 
-import yaml
 import logging
 from xposter.mastodon import Mastobot, Toot
 from xposter.twitter import TwitterApp
@@ -71,13 +70,14 @@ def xpost(conf, db_file):
         db.update_twitter_account(token, t_account[0])
         
         for xp in xp_statuses:
-            text = xp.get_short_text() + "\n\n" + xp.url
+            text = xp.get_short_text()           
+            if xp.include_link: text = text + "\n\n" + xp.url
             
             # get reply_id if it is a reply
             if xp.is_self_reply():
                 xpost = db.get_xpost(xp.in_reply_to_id) 
                 if xpost: reply_id = xpost[1]
-                else: reply_id  = None
+                else: continue
             elif xp.in_reply_to_id:
                 replied_status = m.get_status_by_id(xp.in_reply_to_id)
                 replied_toot = Toot(replied_status)
