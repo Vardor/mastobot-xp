@@ -1,0 +1,19 @@
+mastodon:
+    # Replace with your own instance / token
+    instance: mastodon.social
+    token: AAAAABBBBBCCCCDDDDDDD
+twitter:
+    # Replace with your api client id/secret
+    client_id: BBBCCCCCDDDDDGGFDERR
+    client_secret: FFFGGGGHHHYYYYRFFFF
+    redirect_uri: http://127.0.0.1:5000/oauth/callback
+app:
+    max_statuses: 10
+    interval: 10 #minutes
+    noxp:
+    # must include quotes and start with #
+    - '#noxp'
+    - '#nx'
+    - '#nxp'
+    - '#nox'
+    autostart: True
